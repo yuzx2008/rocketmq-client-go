@@ -157,7 +157,11 @@ func MarshalMessageBatch(msgs ...*primitive.Message) []byte {
 }
 
 func (p *defaultProducer) prepareSendRequest(msg *primitive.Message, ttl time.Duration) (string, error) {
-	correlationId := uuid.NewV4().String()
+	uuidGen, err := uuid.NewV4()
+	if err != nil {
+		return "", errors.Wrap(err, "uuid.NewV4 err")
+	}
+	correlationId := uuidGen.String()
 	requestClientId := p.client.ClientID()
 	msg.WithProperty(primitive.PropertyCorrelationID, correlationId)
 	msg.WithProperty(primitive.PropertyMessageReplyToClient, requestClientId)
